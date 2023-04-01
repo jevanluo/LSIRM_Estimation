@@ -38,17 +38,7 @@ procrustes_trans <-function(z,w,ll) {
                 # results 
                 matched_zz[[ii]]=wz_matched0[1:nz,]
                 matched_ww[[ii]]=wz_matched0[(nz+1):(nz+nw),]    
-                
-                # manual : translation
-                require(expm)
-                rot_mat=t(wz0)%*%wz_centered%*%solve(sqrtm(t(wz_centered)%*%wz0%*%t(wz0)%*%wz_centered))
-                wz_matched=wz_centered%*%rot_mat
-                
-                # results 
-                matched_zm[[ii]]=wz_matched[1:nz,]
-                matched_wm[[ii]]=wz_matched[(nz+1):(nz+nw),]
-                
         }
         
-        return( list(imax=imax, zz=matched_zz, ww=matched_ww, zm=matched_zm, wm=matched_wm))
+        return( list(imax=imax, zz=matched_zz, ww=matched_ww))
 }  
