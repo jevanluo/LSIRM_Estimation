@@ -12,12 +12,12 @@ procrustes_trans <-function(z,w,ll) {
         # create a list of M configurations
         zz <- vector("list", M)
         for (i in 1:M) {
-                zz[[i]] <- cbind(zz0[i,1:N], zz0[i,(N+1):(2*N)])
+                zz[[i]] <- cbind(zz0[i,1:nz], zz0[i,(nz+1):(2*nz)])
         }
         
         ww <- vector("list", M)
         for (i in 1:M) {
-                ww[[i]] <- cbind(ww0[i,1:I], ww0[i,(I+1):(2*I)])
+                ww[[i]] <- cbind(ww0[i,1:nw], ww0[i,(nw+1):(2*nw)])
         }
         
         ll <- apply(ll0, 1,  sum)
