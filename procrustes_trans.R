@@ -10,6 +10,18 @@ procrustes_trans <-function(z,w,ll) {
         nw = ncol(ww0)/2
         
         # create a list of M configurations
+        if(stan==TRUE){
+        zz <- vector("list", M)
+        for (i in 1:M) {
+                zz[[i]] <- cbind(zz0[i,2*(1:nz-1)+1], zz0[i,2*(1:nz)])
+        }
+                
+        ww <- vector("list", M)
+        for (i in 1:M) {
+                ww[[i]] <- cbind(ww0[i,2*(1:nw-1)+1], ww0[i,2*(1:nw)])
+        }
+                
+        }else{
         zz <- vector("list", M)
         for (i in 1:M) {
                 zz[[i]] <- cbind(zz0[i,1:nz], zz0[i,(nz+1):(2*nz)])
@@ -18,6 +30,8 @@ procrustes_trans <-function(z,w,ll) {
         ww <- vector("list", M)
         for (i in 1:M) {
                 ww[[i]] <- cbind(ww0[i,1:nw], ww0[i,(nw+1):(2*nw)])
+        }
+                
         }
         
         ll <- apply(ll0, 1,  sum)
