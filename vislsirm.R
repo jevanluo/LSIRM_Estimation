@@ -7,7 +7,7 @@
 library(coda)
 library(ggplot2)
 
-procrustes_trans <-function(z,w,ll) {
+procrustes_trans <-function(z,w,ll,stan=FALSE) {
         # take the first chain
         ll0 <- ll[[1]]
         zz0 <- z[[1]]
