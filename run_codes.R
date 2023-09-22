@@ -1,8 +1,19 @@
+##################################################
+## Project: Estimating LSIRM with JAGS, Stan and NIMBLE
+## Author: Jinwen Luo, Ludovica De Carolis, Biao Zeng, Minjeong Jeon
+##################################################
 rm(list=ls())  
 setwd("Psych_paper")
 
-##################DATA - common part
+##################################################
+## Section 0: Load Data Example
+##################################################
 library(difR)
+library(prolsirm) 
+source("vislsirm.R")
+library(coda)
+library(ggplot2)
+
 
 data(verbal)
 IRdata<-verbal[,-c(25,26)]
@@ -10,6 +21,11 @@ N<-nrow(IRdata)
 I<- ncol(IRdata)
 r <- IRdata
 
+##################################################
+## Section 1A: Using JAGS to Estimate LSIRM
+## Please stick to only one software at a time,
+## the same procedure will be shown with Stan and Nimble as well
+##################################################
 ##################JAGS
 #load the required package
 library(rjags)
@@ -62,7 +78,9 @@ fitted_LSIRM_p <-jags(data=mydata,
                     parallel=T, 
                     n.cores=2)
 
-
+##################################################
+## Section 1B: Using Stan to Estimate LSIRM
+##################################################
 ##################STAN
 #load the required package
 library(rstan)
@@ -181,7 +199,9 @@ fitted_LSIRM_p <- stan(file = "modelfile.stan", #file with the model specificati
                       seed = 1,          #seed for reproducibility
                       control = list(max_treedepth = 10)) #parameter for algorithm NUTS
                       
-
+##################################################
+## Section 1C: Using NIMBLE to Estimate LSIRM
+##################################################
 ##################NIMBLE 
 #load the required package
 library(nimble)
@@ -278,6 +298,9 @@ fitted_LSIRM_w <- nimbleMCMC(code = mymodel,
                           progressBar = TRUE,
                           samplesAsCodaMCMC = T)
 
+##################################################
+## Section 1D: Paralleling NIMBLE to Estimate LSIRM
+##################################################
 #parallel
 library(difR)
 
@@ -375,6 +398,11 @@ fitted_LSIRM_p <- parLapply(cl = this_cluster, X = 1:2,
 stopCluster(this_cluster)
 
 
+##################################################
+## Section 2: Diagnostics
+## Here we assume the fitted_LSIRM object has been obtained from 
+## one of the above methods.
+##################################################
 ############DIAGNOSTICS
 library(ggmcmc)
 
@@ -396,4 +424,52 @@ ggs_autocorrelation(postsample, family="gamma", greek = T)+theme(axis.ticks.y =e
                                                          axis.title.y=element_blank(),
                                                          axis.title.x = element_blank(),
                                                          axis.text=element_text(size=20,angle = 90,face="bold"))
+
+##################################################
+## Section 3: Visualizing Latent Space
+## Here we assume the fitted_LSIRM object has been obtained from 
+## one of the above methods.
+##################################################
+library(prolsirm) 
+source("vislsirm.R")
+
+fitted_samples <- as.matrix(fitted_LSIRM[[1]]) ### !!!! add in revision
+llCols <- grep("log.ll", colnames(fitted_samples))
+zCols <- grep("z", colnames(fitted_samples))
+wCols <- grep("w", colnames(fitted_samples))
+log_ll.samples <- fitted_samples[,llCols]
+ll.samples <- fitted_samples[,c(llCols)]
+zz.samples <- fitted_samples[,c(zCols)]
+ww.samples <- fitted_samples[,c(wCols)]
+
+M.keep = 1000
+zz <- vector("list", M.keep)
+for (i in 1:M.keep) {
+        ### check the ordering of the parameters
+        ### stan uses a different ordering so change the following code if stan is used
+        
+        ### for jags and nimble
+        zz[[i]] <- cbind(zz.samples[i,1:N], zz.samples[i,(N+1):(2*N)])
+        ### for stan
+        #zz[[i]] <- cbind(zz0[i,2*(1:nz-1)+1], zz0[i,2*(1:nz)])
+}
+
+ww <- vector("list", M.keep)
+for (i in 1:M.keep) {
+        ### check the ordering of the parameters
+        ### stan uses a different ordering so change the following code if stan is used
+        
+        ### for jags and nimble
+        ww[[i]] <- cbind(zz.samples[i,1:I], zz.samples[i,(I+1):(2*I)])
+        ### for stan
+        #ww[[i]] <- cbind(ww0[i,2*(1:nw-1)+1], ww0[i,2*(1:nw)])
+}
+
+### use procrustes from prolsirm package to do the matching
+matched <- procrustes(z=zz,w=ww,ref=1)
+zz.matched <- matched$zz
+ww.matched <- matched$ww
+
+ItemLabel <- c ( rep ( c ( "Curse" ,"Scold" ,"Shout" ) ,8) )
+plot_latent ( zz.matched , ww.matched , ItemGroup = ItemLabel ) 
 
