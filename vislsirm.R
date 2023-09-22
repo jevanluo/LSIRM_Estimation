@@ -4,6 +4,8 @@
 ## Last Edit: May 8, 2023
 ## Author: Jinwen Luo, Minjeong Jeon
 ##################################################
+library(coda)
+library(ggplot2)
 
 procrustes_trans <-function(z,w,ll) {
         # take the first chain
@@ -75,7 +77,7 @@ procrustes_trans <-function(z,w,ll) {
         
         return( list(imax=imax, zz=matched_zz, ww=matched_ww))
 }  
-library(ggplot2)
+
 plot_latent <- function(zz,ww,ItemGroup=NULL,ItemName=NULL,title=NULL){
         M.keep <- length(zz)
         N <- nrow(zz[[1]])
