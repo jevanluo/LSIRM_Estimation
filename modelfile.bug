@@ -1,0 +1,33 @@
+model {
+        for (i in 1:I) {
+                for (j in 1:N) {
+                        r[j,i] ~ dbern(p[j,i])
+                        logit(p[j,i]) <- theta[j] + beta[i] - gamma * sqrt((z[j,1] - w[i,1])^2 + (z[j,2] - w[i,2])^2)
+                }
+                beta[i] ~ dnorm(0, 1/tau_beta^2)
+                w[i, 1:2] ~ dmnorm.vcov(pos_mu, pos_covmat)
+        }
+        for (j in 1:N) {
+                theta[j] ~ dnorm(0, 1/sigma) 
+                z[j, 1:2] ~ dmnorm.vcov(pos_mu, pos_covmat)
+        }
+        gamma ~ dlnorm(mu_gamma, 1/tau_gamma^2)
+        sigma1 ~ dgamma(a_sigma, b_sigma)  
+        sigma <- 1/sigma1
+        pos_mu <- rep(0 ,2)
+        pos_covmat[1,1] <- 1
+        pos_covmat[1,2] <- 0
+        pos_covmat[2,1] <- 0
+        pos_covmat[2,2] <- 1
+        tau_beta <- 2
+        mu_gamma <- 0.5
+        tau_gamma <- 1
+        a_sigma <- 1
+        b_sigma <- 1 
+        # log likelihood 
+        for (i in 1:I) {
+                for (j in 1:N) {
+                        log.ll[j,i] <- r[j,i] * log(p[j,i])  + (1-r[j,i])*log(1-p[j,i])
+                }
+        }
+}
