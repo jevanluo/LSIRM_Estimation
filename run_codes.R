@@ -383,6 +383,7 @@ run_MCMC_allcode <- function(seed, data) {
   cmyMCMC <- compileNimble(myMCMC, project = model)
   
   results <- runMCMC(cmyMCMC, niter = 90000, nburnin = 40000, thin = 50, 
+                     samplesAsCodaMCMC = TRUE,
                      nchains = 1, 
                      setSeed = 1)
   
