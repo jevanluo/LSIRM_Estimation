@@ -434,7 +434,10 @@ ggs_autocorrelation(postsample, family="gamma", greek = T)+theme(axis.ticks.y =e
 library(prolsirm) 
 source("vislsirm.R")
 
-fitted_samples <- as.matrix(fitted_LSIRM[[1]]) ### !!!! add in revision
+fitted_samples <- as.matrix(fitted_LSIRM[[1]]) ### 
+# postsamples of mutiple chains can be combined by
+# fitted_samples <- as.matrix(do.call(rbind,fitted_LSIRM))
+# please update M.keep accordingly if chains are combined.
 llCols <- grep("log.ll", colnames(fitted_samples))
 zCols <- grep("z", colnames(fitted_samples))
 wCols <- grep("w", colnames(fitted_samples))
